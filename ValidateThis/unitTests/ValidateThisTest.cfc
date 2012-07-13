@@ -290,6 +290,28 @@
 			assertTrue(script contains "fm['testProp'].rules('add',{""inlist""");
 		</cfscript>  
 	</cffunction>
+	
+	<!--- test for https://github.com/ValidateThis/ValidateThis/pull/79/files --->
+	<cffunction name="checkThatInjectResultIntoBOArgumentIsPassed" access="public" returntype="void">
+		<cfscript>
+			// create an object to validate
+			var theObject = CreateObject("component","fixture.APlainCFC_Fixture").init();
+			// check config is set to false
+			assertFalse( VTConfig.injectResultIntoBO );
+			// check that theObject doesn't have the getVTResult method yet
+			assertFalse( StructKeyExists( theObject, "getVTResult"  ) );
+			// call validation passing in injectResultIntoBO
+			var result = ValidateThis.validate( theObject=theObject,injectResultIntoBO="true");
+			// check that the getVTResult has been injected into theObject
+			assertTrue( StructKeyExists( theObject, "getVTResult"  ) );
+			// check that getVTResult returns an object
+			assertTrue( isObject( theObject.getVTResult() ) );
+			// check that getVTResult returns a VT result object
+			assertEquals( "ValidateThis.util.Result", getMetaData( theObject.getVTResult() ).fullname );
+			// check config is still false (should be unaffected)
+			assertFalse( VTConfig.injectResultIntoBO );
+		</cfscript>
+	</cffunction>
 
 
 	<cffunction name="setUpUserStruct" access="private" returntype="any">
